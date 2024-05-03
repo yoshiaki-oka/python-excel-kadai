@@ -1,0 +1,67 @@
+
+import openpyxl
+from datetime import datetime
+from openpyxl.styles import Alignment
+
+wb = openpyxl.Workbook()
+ws= wb.active
+
+ws['B2'].value = '請求書'
+ws['B4'].value = '株式会社ＡＢＣ'
+ws['B5'].value = '〒101-0022 東京都千代田区神田練塀町300'
+ws['B6'].value = 'TEL:03-1234-5678 FAX:03-1234-5678'
+ws['B7'].value = '担当者名:鈴木一郎 様'
+
+ws['B15'].value = '合計'
+ws['B16'].value = '消費税'
+ws['B17'].value = '税込合計'
+
+ws['E13'].value = '= SUM(E11:E12)'
+ws['E15'].value = '= E13'
+ws['E16'].value = '= E15 * 0.1'
+ws['E17'].value = '= E15 + E16'
+
+ws['F4'].value = "No."
+ws['F5'].value = '日付'
+
+#No.　ゼロ埋め
+num =1
+ws['G4'].value = f'{num:04}'
+ws['G5'].value = datetime.today().strftime('%Y/%m/%d')
+
+#列幅
+cols = ["B","C","D","E"]
+for i in cols:
+    ws.column_dimensions[i].width = 10
+
+#項目　横位置　中央
+start = 2
+end = 5
+for i in range(start, end+1):
+    ws.cell(row=10,column=i).alignment = Alignment(horizontal='center')
+
+#単価　カンマ
+start =11
+end =12
+for i in range(start, end+1):
+    ws.cell(row=i,column=4).number_format = "#,##0"
+
+#金額　カンマ
+start =11
+end =17
+for i in range(start, end+1):
+    ws.cell(row=i,column=5).number_format = "#,##0"
+
+data = [
+    ['商品名','数量','単価', '金額'],
+    ['商品Ａ' ,2, 10000, 20000],
+    ['商品Ｂ' ,1, 15000, 15000]
+]
+
+for i, row in enumerate(data):
+    for j, value in enumerate(row):
+        ws.cell(10 + i, 2 + j).value = value
+
+today = datetime.today().strftime('%Y%m%d')
+
+wb.save(f"請求書_{today}.xlsx")
