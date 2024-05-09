@@ -13,15 +13,15 @@ df = pd.DataFrame({
 df['平均売上'] = df['売上'].mean()
 
 #売上レベルで分岐して業績を求める関数「performance」を定義
-def performance(level):
-  result = '';
-  if level >= 250:
-    result = 'A';
-  elif level >= 200 and 250 > level:
-    result = 'B';
-  else:
-    result = 'C';
-  return result
+def performance(sales):
+    result = '';
+    if sales >= df['平均売上'].mean() + 50:
+        result = 'A'
+    elif sales >= df['平均売上'].mean():
+        result = 'B'
+    else:
+        result = 'C'
+    return result
 
 #「業績ランク」列を作成し、関数「performance」を適用して値を設定
 df['業績ランク'] = df['売上'].apply(performance)
