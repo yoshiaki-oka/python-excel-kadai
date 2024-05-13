@@ -1,0 +1,57 @@
+
+import pandas as pd
+import openpyxl
+from openpyxl.styles import PatternFill
+
+#ファイル名をリストへ格納
+file_list = ['2022_年間売上表.xlsx', '2023_年間売上表.xlsx']
+
+#空のデータフレーム作成
+df = pd.DataFrame()
+
+# Excelファイル読み込む
+for file_name in file_list:
+    temp_df = pd.read_excel(file_name, header=None)
+
+#データフレーム列名
+    temp_df.columns = ['売上年', '商品', '金額（千円）']
+
+#concatでデータフレーム結合
+    df = pd.concat([df, temp_df], ignore_index=True)
+
+#商品・売上年で金額の合計
+    #　→.reset_index()　　df列：商品　マルチインデックス解除
+grouped = df.groupby(['商品','売上年']).agg({'金額（千円）':'sum'}).reset_index()
+
+#Excelファイル作成
+writer = pd.ExcelWriter('売上集計表.xlsx')
+
+#DataFrameをExcelファイルへ書き込み
+    #index=True　→　False　　df列：商品　マルチインデックス解除
+grouped.to_excel(writer, sheet_name='売上集計', index=False)
+#print(grouped)
+writer.close()
+
+#Excelファイル読み込み
+wb = openpyxl.load_workbook('売上集計表.xlsx')
+
+# ワークシート選択
+ws = wb.active
+
+#列名の重複行削除
+ws.delete_rows(14)
+
+# ヘッダーのセルの設定　F2F2F2で塗りつぶし
+for i in range(1, 3+1):
+    ws.cell(row=1,column=i).fill = PatternFill(fill_type='solid', fgColor='F2F2F2')
+
+#列幅
+ws.column_dimensions["A"].width = 15
+ws.column_dimensions["C"].width = 12
+
+#カンマ　金額
+for i in range(2, 17+1):
+    ws.cell(row=i,column=3).number_format = "#,##0"
+
+#保存
+wb.save('売上集計表.xlsx')
